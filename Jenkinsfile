@@ -56,16 +56,16 @@ pipeline {
     }
 }
 
-        
-        
         stage('Deploy Application') {
-    steps {
+            steps {
         bat '''
         @echo off
         java -jar target\\spring-devops-0.0.1-SNAPSHOT.jar
         '''
     }
-}
+        }
+        
+       
 
 
 
