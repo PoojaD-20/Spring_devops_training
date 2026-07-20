@@ -34,34 +34,40 @@ pipeline {
         }
 
         stage('Stop Existing Application') {
-            steps {
-                bat '''
-                @echo off
-                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :9090') do (
-                    echo Stopping existing application...
-                    taskkill /PID %%a /F
-                )
-                exit /b 0
-                '''
-            }
-        }
+    steps {
+        bat '''
+        @echo off
 
-        stage('Deploy Application') {
-            steps {
-                bat '''
-                @echo off
-                echo Starting Spring Boot Application...
+        set PID=
 
-                start "SpringBootApp" cmd /c java -jar target\\*.jar
+        for /f "tokens=5" %%a in ('netstat -ano ^| findstr :9090') do (
+            set PID=%%a
+        )
 
-                timeout /t 10 > nul
+        if defined PID (
+            echo Stopping application running on port 9090...
+            taskkill /F /PID %PID%
+        ) else (
+            echo No application is running on port 9090.
+        )
 
-                echo Application Started Successfully.
-                '''
-            }
-        }
-
+        exit /b 0
+        '''
     }
+}
+
+        
+        
+        stage('Deploy Application') {
+    steps {
+        bat '''
+        @echo off
+        java -jar target\\spring-devops-0.0.1-SNAPSHOT.jar
+        '''
+    }
+}
+
+
 
     post {
 
