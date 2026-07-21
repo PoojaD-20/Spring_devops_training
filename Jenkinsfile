@@ -22,28 +22,17 @@ pipeline {
         }
         
         stage('Stop Existing Application') {
-    steps {
-        bat '''
-        @echo off
-
-        set PID=
-
-        for /f "tokens=5" %%a in ('netstat -ano ^| findstr :9090') do (
-            set PID=%%a
-        )
-
-        if defined PID (
-            echo Stopping application running on port 9090...
-            taskkill /F /PID %PID%
-        ) else (
-            echo No application is running on port 9090.
-        )
-
-        exit /b 0
-        '''
-    }
-}
-
+            steps {
+                bat '''
+                @echo off
+                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :9090') do (
+                    echo Stopping existing application...
+                    taskkill /PID %%a /F
+                )
+                exit /b 0
+                '''
+            }
+        }
         stage('Compile') {
             steps {
                 bat 'mvn clean compile'
@@ -56,9 +45,9 @@ pipeline {
             }
         }
 
-        
 
- stage('Deploy Application') {
+
+        stage('Deploy Application') {
     steps {
         bat '''
         @echo off
@@ -68,8 +57,7 @@ pipeline {
         set JENKINS_NODE_COOKIE=dontKillMe
 
         :: Start the Spring Boot application in the background
-        start "SpringBootApp" /B cmd /c "java -jar target\\spring-devops-0.0.1-SNAPSHOT.jar > app.log 2>&1"
-        
+                start "SpringBootApp" /B cmd /c "java -jar target\\spring-devops-0.0.1-SNAPSHOT.jar > app.log 2>&1"
 
         :: Wait for application startup
         ping 127.0.0.1 -n 11 > nul
@@ -78,11 +66,8 @@ pipeline {
         '''
     }
 }
-        
-        }
-       
 
-
+    }
 
     post {
 
@@ -95,5 +80,3 @@ pipeline {
         }
 
     }
-
-}
