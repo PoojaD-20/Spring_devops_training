@@ -20,19 +20,7 @@ pipeline {
                     url: 'https://github.com/PoojaD-20/Spring_devops_training.git'
             }
         }
-
-        stage('Compile') {
-            steps {
-                bat 'mvn clean compile'
-            }
-        }
-
-        stage('Package Application') {
-            steps {
-                bat 'mvn package -DskipTests'
-            }
-        }
-
+        
         stage('Stop Existing Application') {
     steps {
         bat '''
@@ -55,6 +43,20 @@ pipeline {
         '''
     }
 }
+
+        stage('Compile') {
+            steps {
+                bat 'mvn clean compile'
+            }
+        }
+
+        stage('Package Application') {
+            steps {
+                bat 'mvn package -DskipTests'
+            }
+        }
+
+        
 
  stage('Deploy Application') {
     steps {
