@@ -56,14 +56,26 @@ pipeline {
     }
 }
 
-        stage('Deploy Application') {
-            steps {
+ stage('Deploy Application') {
+    steps {
         bat '''
         @echo off
-        java -jar target\\spring-devops-0.0.1-SNAPSHOT.jar
+        echo Starting Spring Boot Application...
+
+        :: Prevent Jenkins from terminating the application
+        set JENKINS_NODE_COOKIE=dontKillMe
+
+        :: Start the Spring Boot application in the background
+        start "" javaw -jar target\\spring-devops-0.0.1-SNAPSHOT.jar > app.log 2>&1
+
+        :: Wait for application startup
+        ping 127.0.0.1 -n 11 > nul
+
+        echo Application Started Successfully.
         '''
     }
-        }
+}
+        
         }
        
 
